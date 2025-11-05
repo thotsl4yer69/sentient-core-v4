@@ -1,0 +1,251 @@
+# Sentient Core v4 - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Dependencies
+python>=3.9,<3.12
+
+# Deep Learning Frameworks
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+sentencepiece>=0.1.99
+tokenizers>=0.15.0
+
+# LLM and AI Libraries
+langchain>=0.1.0
+langchain-community>=0.0.10
+openai>=1.3.0
+anthropic>=0.7.0
+huggingface-hub>=0.19.0
+
+# Vector Databases & Embeddings
+chromadb>=0.4.18
+pinecone-client>=2.2.4
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.2
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# Natural Language Processing
+spacy>=3.7.0
+nltk>=3.8.1
+textblob>=0.17.1
+
+# Computer Vision
+opencv-python>=4.8.0
+pillow>=10.0.0
+torchvision>=0.15.0
+
+# Audio Processing
+librosa>=0.10.0
+soundfile>=0.12.1
+pydub>=0.25.1
+pyaudio>=0.2.13
+
+# Web Framework & API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+httpx>=0.25.0
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+psycopg2-binary>=2.9.9
+redis>=5.0.0
+pymongo>=4.6.0
+
+# Async & Concurrency
+asyncio>=3.4.3
+aiofiles>=23.2.1
+celery>=5.3.0
+
+# Configuration & Environment
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+toml>=0.10.2
+configparser>=6.0.0
+
+# Logging & Monitoring
+loguru>=0.7.2
+prometheus-client>=0.19.0
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
+
+# Security
+cryptography>=41.0.0
+pyjwt>=2.8.0
+passlib>=1.7.4
+bcrypt>=4.1.0
+python-multipart>=0.0.6
+
+# Utilities
+python-dateutil>=2.8.2
+pytz>=2023.3
+click>=8.1.7
+rich>=13.7.0
+tqdm>=4.66.0
+joblib>=1.3.2
+
+# Testing (Development)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+httpx>=0.25.0  # for testing FastAPI
+
+# Code Quality (Development)
+black>=23.11.0
+isort>=5.12.0
+flake8>=6.1.0
+pylint>=3.0.0
+mypy>=1.7.0
+
+# Documentation (Development)
+sphinx>=7.2.0
+sphinx-rtd-theme>=2.0.0
+mkdocs>=1.5.0
+mkdocs-material>=9.4.0
+
+# Serialization
+msgpack>=1.0.7
+orjson>=3.9.10
+protobuf>=4.25.0
+
+# Caching
+cachetools>=5.3.2
+diskcache>=5.6.3
+
+# Graph & Network
+networkx>=3.2.1
+graphviz>=0.20.1
+
+# Math & Statistics
+sympy>=1.12
+statsmodels>=0.14.0
+
+# Memory Management
+psutil>=5.9.6
+memory-profiler>=0.61.0
+
+# File Handling
+filelock>=3.13.0
+watchdog>=3.0.0
+
+# JSON & Data Validation
+jsonschema>=4.20.0
+marshmallow>=3.20.0
+
+# CLI & Terminal
+typer>=0.9.0
+questionary>=2.0.1
+colorama>=0.4.6
+
+# Rate Limiting
+ratelimit>=2.2.1
+limits>=3.7.0
+
+# Task Scheduling
+apscheduler>=3.10.4
+schedule>=1.2.0
+
+# Plugin System
+pluggy>=1.3.0
+stevedore>=5.1.0
+
+# Streaming & Real-time
+websockets>=12.0
+sse-starlette>=1.8.2
+
+# Image Processing (Additional)
+scikit-image>=0.22.0
+imageio>=2.33.0
+
+# Data Validation
+validators>=0.22.0
+email-validator>=2.1.0
+
+# UUID & ID Generation
+shortuuid>=1.0.11
+nanoid>=2.0.0
+
+# Template Rendering
+jinja2>=3.1.2
+mako>=1.3.0
+
+# Compression
+zstandard>=0.22.0
+lz4>=4.3.2
+
+# System Information
+distro>=1.8.0
+platform>=1.0.8
+
+# Code Introspection
+inspect-mate>=0.0.9
+ast-comments>=1.1.2
+
+# Performance
+numba>=0.58.1
+cython>=3.0.5
+
+# GPU Monitoring
+pynvml>=11.5.0
+gputil>=1.4.0
+
+# Time Series
+prophet>=1.1.5
+pmdarima>=2.0.4
+
+# Visualization (Optional)
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# XML & HTML Processing
+lxml>=4.9.3
+beautifulsoup4>=4.12.2
+html5lib>=1.1
+
+# CSV & Excel
+openpyxl>=3.1.2
+xlrd>=2.0.1
+pyexcel>=0.7.0
+
+# PDF Processing
+pypdf>=3.17.0
+pdfplumber>=0.10.3
+
+# OCR (Optional)
+pytesseract>=0.3.10
+easyocr>=1.7.0
+
+# Speech Recognition (Optional)
+speech-recognition>=3.10.0
+pyttsx3>=2.90
+
+# Regex & Text
+regex>=2023.10.3
+fuzzywuzzy>=0.18.0
+python-levenshtein>=0.23.0
+
+# Markdown & Text
+markdown>=3.5.1
+markdownify>=0.11.6
+
+# GeoSpatial (Optional)
+geopy>=2.4.1
+geopandas>=0.14.1
+
+# Financial (Optional)
+yfinance>=0.2.32
+pandas-datareader>=0.10.0

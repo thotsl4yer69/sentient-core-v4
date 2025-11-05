@@ -1,0 +1,260 @@
+# Sentient Core v4 - Git Ignore File
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Cython
+cython_debug/
+
+# Data and Models
+data/
+*.h5
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+models/*
+!models/.gitkeep
+*.bin
+*.onnx
+
+# Logs
+logs/
+*.log
+*.out
+*.err
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration (personal configs, not templates)
+config/local.yaml
+config/production.yaml
+.env
+.env.local
+.env.*.local
+
+# API Keys and Secrets
+*.key
+*.pem
+*.crt
+secrets/
+credentials.json
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+\#*#
+
+# Cache
+.cache/
+cache/
+*.cache
+.sentient-core/cache/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# IDE
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.tmproj
+*.sublime-*
+
+# Monitoring
+prometheus_data/
+grafana_data/
+
+# Backups
+*.bak
+*.backup
+*~
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Build artifacts
+*.o
+*.a
+*.dylib
+*.dll
+*.exe
+
+# Node (if any JS tools used)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+site/
+
+# Profiling
+*.prof
+*.lprof
+*.pyprof
+profiles/
+
+# Coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Translations
+*.mo
+*.pot
+
+# Sphinx
+docs/_build/
+
+# Flask/Django
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# Custom
+.sentient-core/
+!.sentient-core/.gitkeep
+plugins/*.pyc
+experiments/
+sandbox/
+temp/
+tmp/
+
+# Large files
+*.wav
+*.mp3
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+
+# User-specific
+local/
+personal/

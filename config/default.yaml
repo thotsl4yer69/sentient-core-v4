@@ -1,0 +1,363 @@
+# Sentient Core v4 - Default Configuration
+# Copy this file to ~/.sentient-core/config.yaml and customize
+
+# Core Engine Settings
+core:
+  # Model selection
+  model: "sentient-v4-base"  # Options: sentient-v4-base, sentient-v4-large, sentient-v4-xl
+
+  # Device configuration
+  device: "auto"  # Options: auto, cpu, cuda, mps (for Apple Silicon)
+
+  # Memory settings
+  max_memory: "8GB"
+  memory_optimization: true
+
+  # Processing settings
+  batch_size: 8
+  max_workers: 4
+  threads: 8
+
+  # Optimization
+  optimization: "auto"  # Options: auto, cpu, gpu, intel, apple_silicon, wsl2
+  mixed_precision: true  # Enable mixed precision training/inference
+
+  # Model paths
+  model_path: "~/.sentient-core/models"
+  cache_dir: "~/.sentient-core/cache"
+
+# Reasoning Engine
+reasoning:
+  # Reasoning depth
+  max_depth: 5
+  min_depth: 1
+
+  # Strategies
+  strategy: "adaptive"  # Options: linear, tree, graph, adaptive
+
+  # Causal inference
+  enable_causal_inference: true
+  confidence_threshold: 0.7
+
+  # Planning
+  enable_planning: true
+  max_plan_steps: 20
+
+  # Self-reflection
+  enable_reflection: true
+  reflection_interval: 10
+
+# Memory System
+memory:
+  # Memory types
+  enable_short_term: true
+  enable_long_term: true
+  enable_episodic: true
+  enable_semantic: true
+
+  # Storage backend
+  backend: "chromadb"  # Options: chromadb, pinecone, faiss, postgres
+
+  # Short-term memory
+  short_term:
+    capacity: 1000
+    retention_time: 3600  # seconds
+
+  # Long-term memory
+  long_term:
+    embedding_model: "all-MiniLM-L6-v2"
+    vector_dim: 384
+    index_type: "hnsw"
+    similarity_threshold: 0.75
+
+  # Memory consolidation
+  consolidation:
+    enabled: true
+    interval: 300  # seconds
+    importance_threshold: 0.6
+
+# Learning System
+learning:
+  # Learning modes
+  enable_online_learning: true
+  enable_meta_learning: true
+
+  # Training
+  learning_rate: 0.0001
+  batch_size: 32
+  epochs: 10
+
+  # Adaptation
+  adaptation_rate: 0.1
+  feedback_integration: true
+
+  # Experience replay
+  replay_buffer_size: 10000
+  replay_frequency: 100
+
+# Perception
+perception:
+  # Modalities
+  text:
+    enabled: true
+    max_length: 8192
+    tokenizer: "auto"
+
+  vision:
+    enabled: false  # Set to true if using vision features
+    image_size: [224, 224]
+    model: "clip-vit-base"
+
+  audio:
+    enabled: false  # Set to true if using audio features
+    sample_rate: 16000
+    model: "wav2vec2"
+
+  # Multi-modal fusion
+  fusion:
+    enabled: false
+    strategy: "late"  # Options: early, late, hybrid
+
+# Action System
+action:
+  # Execution
+  max_concurrent_actions: 5
+  timeout: 30  # seconds
+  retry_attempts: 3
+
+  # Safety
+  enable_safety_checks: true
+  sandbox_execution: true
+
+  # Validation
+  validate_before_execution: true
+  rollback_on_failure: true
+
+# API Server
+api:
+  # Server configuration
+  host: "127.0.0.1"
+  port: 8080
+  workers: 4
+
+  # Authentication
+  auth_required: true
+  api_key: "your-secure-api-key-here"  # Change this!
+  jwt_secret: "your-jwt-secret-here"    # Change this!
+
+  # CORS
+  cors_enabled: true
+  cors_origins: ["*"]
+
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+    burst: 10
+
+  # Timeouts
+  request_timeout: 60
+  keepalive_timeout: 5
+
+  # SSL/TLS
+  ssl_enabled: false
+  ssl_cert: ""
+  ssl_key: ""
+
+# Database
+database:
+  # Primary database
+  url: "sqlite:///~/.sentient-core/sentient.db"
+  # For PostgreSQL: "postgresql://user:password@localhost:5432/sentient"
+
+  # Connection pool
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+
+  # Settings
+  echo: false
+  auto_migrate: true
+
+# Cache
+cache:
+  # Redis configuration (optional)
+  enabled: false
+  backend: "memory"  # Options: memory, redis, memcached
+  redis_url: "redis://localhost:6379/0"
+
+  # Cache settings
+  default_ttl: 3600
+  max_size: 1000
+
+# Logging
+logging:
+  # Log level
+  level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+  # Log files
+  file: "~/.sentient-core/logs/sentient.log"
+  error_file: "~/.sentient-core/logs/error.log"
+
+  # Format
+  format: "detailed"  # Options: simple, detailed, json
+
+  # Rotation
+  rotation: "daily"  # Options: daily, weekly, size
+  max_size: "100MB"
+  backup_count: 10
+
+  # Console output
+  console_output: true
+  colorize: true
+
+# Monitoring
+monitoring:
+  # Metrics
+  enabled: false
+  prometheus:
+    enabled: false
+    port: 9090
+
+  # Tracing
+  tracing:
+    enabled: false
+    backend: "jaeger"
+    endpoint: "http://localhost:14268/api/traces"
+
+  # Health checks
+  health_check:
+    enabled: true
+    interval: 60
+
+# Security
+security:
+  # Encryption
+  encrypt_data_at_rest: false
+  encryption_key: ""  # Set if encryption enabled
+
+  # Audit logging
+  audit_log_enabled: true
+  audit_log_file: "~/.sentient-core/logs/audit.log"
+
+  # Resource limits
+  max_request_size: "10MB"
+  max_response_size: "50MB"
+
+  # Sandboxing
+  sandbox_enabled: true
+  allowed_commands: []
+  blocked_commands: ["rm", "del", "format"]
+
+# Plugins
+plugins:
+  # Plugin system
+  enabled: true
+  directory: "~/.sentient-core/plugins"
+  auto_load: true
+
+  # Plugin list (load specific plugins)
+  load: []
+  # Example:
+  # load:
+  #   - name: "web_search"
+  #     enabled: true
+  #   - name: "code_interpreter"
+  #     enabled: true
+
+# Features
+features:
+  # Core features
+  reasoning: true
+  memory: true
+  learning: true
+
+  # Advanced features
+  multi_agent: false
+  self_awareness: true
+  emotional_intelligence: false
+
+  # Domain-specific
+  code_generation: true
+  data_analysis: true
+  web_interaction: false
+
+  # Processing
+  audio_processing: false
+  vision_processing: false
+  video_processing: false
+
+  # Real-time
+  real_time_mode: false
+  streaming: true
+
+# LLM Integration
+llm:
+  # Primary LLM
+  provider: "local"  # Options: local, openai, anthropic, huggingface
+
+  # OpenAI
+  openai:
+    api_key: ""
+    model: "gpt-4"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # Anthropic
+  anthropic:
+    api_key: ""
+    model: "claude-3-opus-20240229"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # HuggingFace
+  huggingface:
+    api_key: ""
+    model: "meta-llama/Llama-2-70b-chat-hf"
+
+# Development
+development:
+  # Debug mode
+  debug: false
+  debug_level: 1  # 0-3
+
+  # Testing
+  test_mode: false
+  mock_external_apis: false
+
+  # Profiling
+  profile: false
+  profile_output: "~/.sentient-core/profiles"
+
+  # Hot reload
+  hot_reload: false
+
+# Performance
+performance:
+  # Caching
+  enable_result_caching: true
+  cache_ttl: 3600
+
+  # Async processing
+  async_enabled: true
+  max_async_tasks: 100
+
+  # Lazy loading
+  lazy_load_models: true
+
+  # Resource monitoring
+  monitor_resources: true
+  resource_alert_threshold: 0.8
+
+# Experimental
+experimental:
+  # Experimental features (use with caution)
+  enable_experimental: false
+
+  features:
+    - name: "quantum_reasoning"
+      enabled: false
+    - name: "neural_symbolic_integration"
+      enabled: false
+    - name: "consciousness_simulation"
+      enabled: false
