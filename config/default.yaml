@@ -273,7 +273,7 @@ features:
   learning: true
 
   # Advanced features
-  multi_agent: false
+  multi_agent: true
   self_awareness: true
   emotional_intelligence: false
 
@@ -283,8 +283,8 @@ features:
   web_interaction: false
 
   # Processing
-  audio_processing: false
-  vision_processing: false
+  audio_processing: true
+  vision_processing: true
   video_processing: false
 
   # Real-time
