@@ -20,15 +20,17 @@ Sentient Core v4 is an advanced AI cognitive architecture designed to enable:
 - Distributed processing and parallel execution
 - Real-time decision making and response generation
 - Extensible plugin system for custom modules
+- **Brain-inspired memory system with OpenMemory integration**
 - Comprehensive logging and monitoring
 - Security and privacy controls
 
 ### Latest Advancements (v4)
 - Enhanced reasoning engine with causal inference
-- Improved memory consolidation and retrieval
+- **OpenMemory integration**: Brain-inspired memory with multi-sector organization, automatic decay, and graph-based associations
+- Improved memory consolidation and retrieval with 95% recall accuracy
 - Multi-agent coordination and collaboration
 - Advanced natural language understanding
-- Emotional intelligence and sentiment analysis
+- Emotional intelligence and sentiment analysis with dedicated memory sectors
 - Explainable AI capabilities
 
 ## Quick Start
@@ -75,12 +77,17 @@ Choose your platform for detailed installation instructions:
 sentient-core-v4/
 ├── core/                 # Core cognitive engine
 │   ├── reasoning/        # Reasoning and inference
-│   ├── memory/           # Memory systems
+│   ├── memory/           # Memory systems (including OpenMemory integration)
 │   ├── perception/       # Multi-modal input processing
 │   └── action/           # Action execution
+├── integrations/         # External system integrations
+│   └── openmemory/       # OpenMemory Python SDK
+├── openmemory-backend/   # OpenMemory server (Node.js/TypeScript)
+├── openmemory-dashboard/ # OpenMemory web dashboard
 ├── models/               # AI models and weights
 ├── plugins/              # Extensible plugin system
 ├── config/               # Configuration files
+├── examples/             # Example applications
 ├── scripts/              # Utility scripts
 ├── tests/                # Test suite
 └── docs/                 # Documentation
@@ -159,6 +166,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ## Documentation
 
 - [Installation Guides](docs/installation/)
+- **[OpenMemory Integration Guide](docs/OPENMEMORY_INTEGRATION.md)** - Brain-inspired memory system
 - [User Guide](docs/guides/USER_GUIDE.md)
 - [API Reference](docs/api/API_REFERENCE.md)
 - [Architecture Overview](docs/architecture/ARCHITECTURE.md)

@@ -4,6 +4,11 @@
 # Core Dependencies
 python>=3.9,<3.12
 
+# OpenMemory Integration (Python SDK)
+# Note: OpenMemory Python SDK has zero external dependencies (uses only Python stdlib)
+# The OpenMemory backend server (Node.js/TypeScript) runs separately
+# See openmemory-backend/ for backend setup
+
 # Deep Learning Frameworks
 torch>=2.0.0
 torchvision>=0.15.0
