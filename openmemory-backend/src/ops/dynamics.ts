@@ -1,4 +1,4 @@
-import { all_async, run_async, get_async, q } from '../core/db'
+import { all_async, run_async, get_async } from '../core/db'
 import { now } from '../utils'
 import { cosineSimilarity } from '../memory/embed'
 
