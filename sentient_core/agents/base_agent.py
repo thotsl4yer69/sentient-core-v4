@@ -106,7 +106,7 @@ class BaseAgent(ABC):
 
     def can_handle(self, task_type: str) -> bool:
         """Check if agent can handle a specific task type."""
-        return any(cap.name == task_type and cap.enabled for cap in self.capabilities)
+        return self.active and any(cap.name == task_type and cap.enabled for cap in self.capabilities)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}(id={self.agent_id[:8]}, name={self.name}, active={self.active})>"
