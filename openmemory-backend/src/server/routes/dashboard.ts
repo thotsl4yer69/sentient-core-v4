@@ -1,4 +1,4 @@
-import { q, all_async, run_async } from '../../core/db'
+import { all_async, run_async } from '../../core/db'
 import { env } from '../../core/cfg'
 import * as fs from 'fs'
 import * as path from 'path'

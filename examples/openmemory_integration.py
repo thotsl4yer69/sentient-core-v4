@@ -8,7 +8,6 @@ multi-sector organization, automatic decay, and advanced retrieval.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add parent directory to path to import sentient_core
@@ -16,7 +15,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sentient_core.core.config import Config
 from sentient_core.core.memory.memory_system import MemorySystem
-from sentient_core.integrations.openmemory.client import SECTORS
 import time
 
 

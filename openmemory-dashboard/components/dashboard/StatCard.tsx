@@ -1,6 +1,6 @@
 interface StatCardProps {
     label: string
-    value: any
+    value: string | number
     unit?: string
     status: string
     statusColor: string

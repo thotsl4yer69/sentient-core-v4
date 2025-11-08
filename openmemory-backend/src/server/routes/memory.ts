@@ -1,8 +1,6 @@
-import { q } from '../../core/db';
-import { now, rid, j, p } from '../../utils';
 import { add_hsg_memory, hsg_query, reinforce_memory, update_memory } from '../../memory/hsg';
 import { ingestDocument, ingestURL } from '../../ops/ingest';
-import { env } from '../../core/cfg';
+import { j, p } from '../../utils';
 import { update_user_summary } from '../../memory/user_summary';
 import type { add_req, q_req, ingest_req, ingest_url_req } from '../../core/types';
 

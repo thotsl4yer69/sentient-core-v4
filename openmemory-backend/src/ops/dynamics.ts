@@ -143,7 +143,7 @@ export async function performSpreadingActivationRetrieval(
     for (const id of init) act.set(id, 1.0)
     for (let i = 0; i < max; i++) {
         const ups = new Map<string, number>()
-        for (const [nid, ca] of act) {
+        for (const nid of act.keys()) {
             const nd = gr.get(nid)
             if (!nd) continue
             for (const e of nd.connected_waypoint_edges) {

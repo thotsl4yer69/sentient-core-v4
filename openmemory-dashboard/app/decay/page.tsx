@@ -29,7 +29,6 @@ export default function decay() {
     const [riskmems, setriskmems] = useState<memory[]>([])
     const [loading, setloading] = useState(true)
     const [error, seterror] = useState<string | null>(null)
-    const [dashstats, setdashstats] = useState<any>(null)
 
     useEffect(() => {
         fetchdata()

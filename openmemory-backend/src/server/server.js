@@ -184,7 +184,6 @@ function server(config = {}) {
     return {
         use,
         listen,
-        all,
         serverStatic,
         routes: ROUTES,
         getRoutes,

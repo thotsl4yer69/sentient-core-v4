@@ -208,7 +208,6 @@ export const apply_decay = async () => {
 
                             if (new_vec.length < before_len) {
                                 await run_async('update vectors set vector=? where id=? and sector=?', [JSON.stringify(new_vec), m.id, sector])
-                                compressed = true
                                 tot_comp++
                             }
 
@@ -225,7 +224,6 @@ export const apply_decay = async () => {
                     const fp = fingerprint_mem(m)
                     await run_async('update vectors set vector=? where id=? and sector=?', [JSON.stringify(fp.vector), m.id, sector])
                     await run_async('update memories set summary=? where id=?', [fp.summary, m.id])
-                    fingerprinted = true
                     tot_fp++
                     changed = true
                 }
