@@ -1,0 +1,110 @@
+# Docker Compose for Sentient Core v4 with OpenMemory
+# This configuration runs both Sentient Core and OpenMemory backend
+#
+# Usage:
+#   docker-compose -f docker-compose.openmemory.yml up -d
+#
+# Services:
+#   - sentient-core: Main Sentient Core v4 application
+#   - openmemory-backend: OpenMemory brain-inspired memory system
+#   - openmemory-dashboard: OpenMemory web dashboard (optional)
+
+version: '3.8'
+
+services:
+  # OpenMemory Backend (Memory Server)
+  openmemory-backend:
+    build:
+      context: ./openmemory-backend
+      dockerfile: Dockerfile
+    container_name: openmemory-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - DB_PATH=/data/openmemory.db
+      - EMBEDDING_PROVIDER=local
+      - ENABLE_AUTH=false
+      - LOG_LEVEL=info
+    volumes:
+      - openmemory-data:/data
+      - openmemory-embeddings:/embeddings
+    restart: unless-stopped
+    networks:
+      - sentient-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # OpenMemory Dashboard (Optional - Web UI)
+  openmemory-dashboard:
+    build:
+      context: ./openmemory-dashboard
+      dockerfile: Dockerfile
+    container_name: openmemory-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://openmemory-backend:8080
+      - NODE_ENV=production
+    depends_on:
+      openmemory-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sentient-network
+
+  # Sentient Core v4 Application
+  sentient-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentient-core-v4
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SENTIENT_CORE_CONFIG=/app/config/docker.yaml
+      - MEMORY_BACKEND=openmemory
+      - OPENMEMORY_URL=http://openmemory-backend:8080
+      - OPENMEMORY_API_KEY=
+    volumes:
+      - sentient-data:/data
+      - sentient-models:/models
+      - ./config:/app/config:ro
+    depends_on:
+      openmemory-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sentient-network
+    # Uncomment for GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+networks:
+  sentient-network:
+    driver: bridge
+    name: sentient-network
+
+volumes:
+  # OpenMemory volumes
+  openmemory-data:
+    name: openmemory-data
+  openmemory-embeddings:
+    name: openmemory-embeddings
+
+  # Sentient Core volumes
+  sentient-data:
+    name: sentient-data
+  sentient-models:
+    name: sentient-models

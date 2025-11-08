@@ -56,7 +56,7 @@ memory:
   enable_semantic: true
 
   # Storage backend
-  backend: "chromadb"  # Options: chromadb, pinecone, faiss, postgres
+  backend: "chromadb"  # Options: chromadb, pinecone, faiss, postgres, openmemory
 
   # Short-term memory
   short_term:
@@ -75,6 +75,55 @@ memory:
     enabled: true
     interval: 300  # seconds
     importance_threshold: 0.6
+
+# OpenMemory Integration (Brain-Inspired Memory System)
+openmemory:
+  # OpenMemory server configuration
+  url: "http://localhost:8080"
+  api_key: ""  # Optional API key for authentication
+
+  # User isolation (for multi-user systems)
+  user_id: "default"
+
+  # Auto-consolidate memories (OpenMemory handles this automatically)
+  auto_consolidate: true
+
+  # Memory sector configuration
+  # OpenMemory organizes memories into cognitive sectors:
+  # - episodic: Event memories (temporal experiences)
+  # - semantic: Facts & preferences (knowledge base)
+  # - procedural: Habits, triggers (action patterns)
+  # - emotional: Sentiment states (affective data)
+  # - reflective: Meta memory & logs (introspection)
+
+  # Decay parameters (optional - OpenMemory has sensible defaults)
+  # decay_rates:
+  #   episodic: 0.0001    # Events fade faster
+  #   semantic: 0.00001   # Facts persist longer
+  #   procedural: 0.00005 # Habits moderate decay
+  #   emotional: 0.0002   # Emotions fade quickly
+  #   reflective: 0.00002 # Reflections persist
+
+  # Embedding configuration
+  embedding:
+    provider: "local"  # Options: local, openai, gemini, ollama
+    # model: "all-MiniLM-L6-v2"  # For local embeddings
+    # openai_key: ""             # If using OpenAI
+    # gemini_key: ""             # If using Gemini
+
+  # Performance settings
+  performance:
+    batch_size: 100
+    cache_embeddings: true
+    compression_enabled: true
+
+  # Advanced features
+  features:
+    enable_associations: true      # Build memory graphs
+    enable_pattern_detection: true # Detect recurring patterns
+    enable_user_summaries: true    # Generate user summaries
+    enable_ide_integration: false  # IDE context tracking
+    enable_langgraph: false        # LangGraph memory integration
 
 # Learning System
 learning:
