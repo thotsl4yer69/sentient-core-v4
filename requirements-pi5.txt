@@ -1,0 +1,100 @@
+# Sentient Core v4 - Raspberry Pi 5 + Hailo AI Hat Requirements
+# Install with: pip install -r requirements-pi5.txt
+
+# Core Python Requirements
+python>=3.9,<3.12
+
+# Deep Learning Frameworks (CPU-optimized for Pi)
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+
+# Local LLM Inference (llama.cpp)
+llama-cpp-python>=0.2.0
+
+# Hardware Accelerators
+# Note: Hailo and Coral packages may need manual installation
+# hailort  # Install from Hailo website
+# pycoral  # Install via: pip install pycoral tflite-runtime
+tflite-runtime>=2.14.0
+
+# Computer Vision
+opencv-python-headless>=4.8.0  # Headless version for Pi
+pillow>=10.0.0
+scikit-image>=0.22.0
+
+# Audio Processing
+librosa>=0.10.0
+soundfile>=0.12.1
+sounddevice>=0.4.6
+pyaudio>=0.2.13
+pydub>=0.25.1
+
+# RF Signal Processing (optional)
+# pyrtlsdr>=0.2.92  # Requires RTL-SDR hardware
+
+# GPIO and Hardware Interfaces
+RPi.GPIO>=0.7.1
+gpiozero>=2.0
+smbus2>=0.4.2
+spidev>=3.6
+pyserial>=3.5
+
+# Async & Web Framework
+aiohttp>=3.9.0
+websockets>=12.0
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+httpx>=0.25.0
+
+# Data Processing
+numpy>=1.24.0
+scipy>=1.11.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Configuration & Environment
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+toml>=0.10.2
+
+# Logging & Monitoring
+loguru>=0.7.2
+colorlog>=6.7.0
+rich>=13.7.0
+tqdm>=4.66.0
+
+# Database & Caching
+redis>=5.0.0
+hiredis>=2.2.3
+
+# System Monitoring
+psutil>=5.9.6
+
+# Async Task Queue
+celery>=5.3.0
+
+# Utilities
+python-dateutil>=2.8.2
+pytz>=2023.3
+
+# Security
+cryptography>=41.0.0
+pyjwt>=2.8.0
+
+# Testing (Development)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.12.0
+
+# File Handling
+filelock>=3.13.0
+
+# Serialization
+msgpack>=1.0.7
+orjson>=3.9.10
+
+# Additional Pi-Specific
+picamera2>=0.3.16  # Pi Camera support
