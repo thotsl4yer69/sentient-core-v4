@@ -51,6 +51,10 @@ class DistributedConsciousness:
         self.running = False
         self.sync_interval = 0.1  # 10Hz sync rate
 
+        # Background tasks
+        self.sync_task: Optional[asyncio.Task] = None
+        self.discovery_task: Optional[asyncio.Task] = None
+
         logger.info("Distributed Consciousness initialized")
 
     async def start(self, local_node_spec: NodeSpec):
@@ -75,11 +79,11 @@ class DistributedConsciousness:
         self.sync_manager = SyncManager(self.shared_state)
 
         # Start sync loop
-        asyncio.create_task(self._sync_loop())
+        self.sync_task = asyncio.create_task(self._sync_loop())
 
         # Start node discovery (if configured)
         if self.config.get('enable_discovery', False):
-            asyncio.create_task(self._discovery_loop())
+            self.discovery_task = asyncio.create_task(self._discovery_loop())
 
         logger.info("Distributed Consciousness operational")
 
@@ -456,6 +460,22 @@ class DistributedConsciousness:
     async def stop(self):
         """Stop distributed consciousness."""
         self.running = False
+
+        # Cancel background tasks
+        if self.sync_task and not self.sync_task.done():
+            self.sync_task.cancel()
+            try:
+                await self.sync_task
+            except asyncio.CancelledError:
+                pass
+
+        if self.discovery_task and not self.discovery_task.done():
+            self.discovery_task.cancel()
+            try:
+                await self.discovery_task
+            except asyncio.CancelledError:
+                pass
+
         logger.info("Distributed Consciousness stopped")
 
     def __repr__(self) -> str:
