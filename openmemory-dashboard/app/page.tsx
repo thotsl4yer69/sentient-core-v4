@@ -24,7 +24,6 @@ export default function Dashboard() {
     const [qpsData, setQpsData] = useState<any[]>([])
     const [healthMetrics, setHealthMetrics] = useState<any>({})
     const [logs, setLogs] = useState<any[]>([])
-    const [topUsers, setTopUsers] = useState<any[]>([])
     const [timePeriod, setTimePeriod] = useState("today")
     const [qpsStats, setQpsStats] = useState<any>({})
     const [maintenanceData, setMaintenanceData] = useState<any[]>([])

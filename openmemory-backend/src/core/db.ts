@@ -73,7 +73,6 @@ if (is_pg) {
     const v = `"${sc}"."${process.env.OM_VECTOR_TABLE || 'openmemory_vectors'}"`
     const w = `"${sc}"."openmemory_waypoints"`
     const l = `"${sc}"."openmemory_embed_logs"`
-    const f = `"${sc}"."openmemory_memories_fts"`
     const exec = async (sql: string, p: any[] = []) => {
         const c = cli || pg
         return (await c.query(sql, p)).rows
@@ -141,7 +140,6 @@ if (is_pg) {
     run_async = async (sql, p = []) => { await safe_exec(sql, p) }
     get_async = async (sql, p = []) => (await safe_exec(sql, p))[0]
     all_async = async (sql, p = []) => await safe_exec(sql, p)
-    const clean = (s: string) => s ? s.replace(/"/g, '').replace(/\s+OR\s+/gi, ' OR ') : ''
     q = {
         ins_mem: { run: (...p) => run_async(`insert into ${m}(id,user_id,segment,content,simhash,primary_sector,tags,meta,created_at,updated_at,last_seen_at,salience,decay_lambda,version,mean_dim,mean_vec,compressed_vec,feedback_score) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) on conflict(id) do update set user_id=excluded.user_id,segment=excluded.segment,content=excluded.content,simhash=excluded.simhash,primary_sector=excluded.primary_sector,tags=excluded.tags,meta=excluded.meta,created_at=excluded.created_at,updated_at=excluded.updated_at,last_seen_at=excluded.last_seen_at,salience=excluded.salience,decay_lambda=excluded.decay_lambda,version=excluded.version,mean_dim=excluded.mean_dim,mean_vec=excluded.mean_vec,compressed_vec=excluded.compressed_vec,feedback_score=excluded.feedback_score`, p) },
         upd_mean_vec: { run: (...p) => run_async(`update ${m} set mean_dim=$2,mean_vec=$3 where id=$1`, p) },

@@ -10,7 +10,7 @@ import logging
 from typing import Dict, Any, Optional, List
 import time
 
-from sentient_core.integrations.openmemory.client import OpenMemory, SECTORS
+from sentient_core.integrations.openmemory.client import OpenMemory
 
 logger = logging.getLogger(__name__)
 

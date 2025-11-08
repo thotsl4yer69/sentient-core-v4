@@ -3,7 +3,6 @@
 import sys
 import os
 import asyncio
-import aiohttp
 import time
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'sdk-py'))
 
@@ -126,8 +125,8 @@ async def performance_benchmark():
             try:
                 client.delete_memory(memory['id'])
                 deleted_count += 1
-            except:
-                pass
+            except Exception as e:
+                print(f'   ⚠️ Failed to delete memory {memory["id"]}: {e}')
         
         cleanup_time = time.time() - cleanup_start
         print(f'✅ Cleaned up {deleted_count} test memories in {cleanup_time:.2f}s')

@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { canonical_token_set } from '../utils/text'
 import { inc_q, dec_q, on_query_hit } from './decay'
 import { env, tier } from '../core/cfg'
-import { cos_sim, buf_to_vec, vec_to_buf } from '../utils/index'
+import { cos_sim, buf_to_vec } from '../utils/index'
 export interface sector_cfg {
     model: string
     decay_lambda: number
@@ -301,7 +301,7 @@ export function compute_hybrid_score(
         keyword_score
     return sigmoid(raw)
 }
-import { q, get_async, all_async, run_async, transaction, log_maint_op } from '../core/db'
+import { q, transaction, log_maint_op } from '../core/db'
 export async function create_cross_sector_waypoints(
     prim_id: string,
     prim_sec: string,
@@ -338,7 +338,6 @@ export async function create_single_waypoint(
     new_mean: number[],
     ts: number
 ): Promise<void> {
-    const thresh = 0.75
     const mems = await q.all_mem.all(1000, 0)
     let best: { id: string, similarity: number } | null = null
     for (const mem of mems) {
@@ -443,13 +442,11 @@ export async function prune_weak_waypoints(): Promise<number> {
 import { embedForSector, embedMultiSector, cosineSimilarity, bufferToVector, vectorToBuffer, EmbeddingResult } from './embed'
 import { chunk_text } from '../utils/chunking'
 import { j } from '../utils'
-import { keyword_filter_memories, extract_keywords } from '../utils/keyword'
+import { keyword_filter_memories } from '../utils/keyword'
 import {
     calculateCrossSectorResonanceScore,
     applyRetrievalTraceReinforcementToMemory,
-    propagateAssociativeReinforcementToLinkedNodes,
-    ALPHA_LEARNING_RATE_FOR_RECALL_REINFORCEMENT,
-    BETA_LEARNING_RATE_FOR_EMOTIONAL_FREQUENCY
+    propagateAssociativeReinforcementToLinkedNodes
 } from '../ops/dynamics'
 export interface multi_vec_fusion_weights {
     semantic_dimension_weight: number
@@ -496,16 +493,6 @@ const get_vec = (id: string, v: Buffer): number[] => {
     }
     return vec
 }
-const get_segment = async (seg: number): Promise<any[]> => {
-    if (seg_cache.has(seg)) return seg_cache.get(seg)!
-    const rows = await q.get_mem_by_segment.all(seg)
-    seg_cache.set(seg, rows)
-    if (seg_cache.size > env.cache_segments) {
-        const first = seg_cache.keys().next().value
-        if (first !== undefined) seg_cache.delete(first)
-    }
-    return rows
-}
 setInterval(async () => {
     if (!coact_buf.length) return
     const pairs = coact_buf.splice(0, 50)
@@ -525,14 +512,6 @@ setInterval(async () => {
         }
     }
 }, 1000)
-const get_sal = async (id: string, def_sal: number): Promise<number> => {
-    const c = sal_cache.get(id)
-    if (c && Date.now() - c.t < TTL) return c.s
-    const m = await q.get_mem.get(id)
-    const s = m?.salience ?? def_sal
-    sal_cache.set(id, { s, t: Date.now() })
-    return s
-}
 export async function hsg_query(qt: string, k = 10, f?: { sectors?: string[], minSalience?: number, user_id?: string }): Promise<hsg_q_result[]> {
     if (active_queries >= env.max_active) {
         throw new Error(`Rate limit: ${active_queries} active queries (max ${env.max_active})`)
@@ -599,10 +578,10 @@ export async function hsg_query(qt: string, k = 10, f?: { sectors?: string[], mi
             if (f?.user_id && m.user_id !== f.user_id) continue
             const mvf = await calc_multi_vec_fusion_score(mid, qe, w)
             const csr = await calculateCrossSectorResonanceScore(m.primary_sector, qc.primary, mvf)
-            let bs = csr, bsec = m.primary_sector
+            let bs = csr
             for (const [sec, rr] of Object.entries(sr)) {
                 const mat = rr.find(r => r.id === mid)
-                if (mat && mat.similarity > bs) { bs = mat.similarity; bsec = sec }
+                if (mat && mat.similarity > bs) { bs = mat.similarity }
             }
             const em = exp.find((e: { id: string }) => e.id === mid)
             const ww = em?.weight || 0
