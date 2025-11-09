@@ -1,0 +1,236 @@
+# Sentient Core v4 - Coral Training Pipeline Configuration
+
+# Model Configuration
+model:
+  # Base architecture (optimized for edge)
+  architecture: "mobilenet_v2"  # Options: mobilenet_v2, mobilenet_v3, efficientnet_lite
+
+  # Model variant
+  variant: "1.0"  # Width multiplier: 0.35, 0.5, 0.75, 1.0
+
+  # Input configuration
+  input_shape: [224, 224, 3]
+  input_name: "input"
+
+  # Output configuration
+  num_classes: 1000
+  output_name: "output"
+
+  # Model paths
+  save_dir: "models/coral"
+  model_name: "sentient_coral_model"
+
+# Training Configuration
+training:
+  # Data settings
+  data:
+    train_dir: "data/train"
+    val_dir: "data/val"
+    test_dir: "data/test"
+
+    # Augmentation
+    augmentation:
+      enabled: true
+      rotation_range: 20
+      width_shift_range: 0.2
+      height_shift_range: 0.2
+      horizontal_flip: true
+      vertical_flip: false
+      zoom_range: 0.2
+      brightness_range: [0.8, 1.2]
+
+  # Training parameters
+  epochs: 50
+  batch_size: 32
+  initial_learning_rate: 0.001
+
+  # Learning rate schedule
+  lr_schedule:
+    type: "exponential_decay"  # Options: constant, exponential_decay, cosine_decay
+    decay_steps: 1000
+    decay_rate: 0.96
+
+  # Optimizer
+  optimizer:
+    type: "adam"  # Options: adam, sgd, rmsprop
+    beta_1: 0.9
+    beta_2: 0.999
+    epsilon: 1.0e-07
+
+  # Loss function
+  loss: "sparse_categorical_crossentropy"
+
+  # Metrics
+  metrics:
+    - "accuracy"
+    - "top_k_categorical_accuracy"
+
+  # Callbacks
+  callbacks:
+    early_stopping:
+      enabled: true
+      patience: 5
+      min_delta: 0.001
+      restore_best_weights: true
+
+    model_checkpoint:
+      enabled: true
+      save_best_only: true
+      save_weights_only: false
+
+    tensorboard:
+      enabled: true
+      log_dir: "logs/tensorboard"
+
+    reduce_lr:
+      enabled: true
+      factor: 0.5
+      patience: 3
+      min_lr: 0.00001
+
+# Quantization Configuration
+quantization:
+  # Enable quantization
+  enabled: true
+
+  # Quantization type (int8 required for Edge TPU)
+  type: "int8"
+
+  # Representative dataset for calibration
+  representative_dataset:
+    num_samples: 100
+    source: "validation"  # Options: training, validation, test
+
+  # Quantization options
+  options:
+    inference_input_type: "uint8"
+    inference_output_type: "uint8"
+    default_ranges_stats: true
+    drop_control_dependency: true
+
+# Edge TPU Compilation
+edge_tpu:
+  # Enable compilation
+  compile: true
+
+  # Compiler settings
+  compiler:
+    num_segments: 1
+    show_operations: true
+
+  # Output settings
+  output_dir: "models/coral/edgetpu"
+  intermediate_tensors: false
+
+# Optimization Settings
+optimization:
+  # Pruning
+  pruning:
+    enabled: false
+    initial_sparsity: 0.0
+    final_sparsity: 0.5
+    begin_step: 1000
+    end_step: 10000
+
+  # Clustering
+  clustering:
+    enabled: false
+    num_clusters: 16
+
+  # Mixed precision
+  mixed_precision:
+    enabled: false  # Not compatible with int8 quantization
+
+# Deployment Configuration
+deployment:
+  # Target device
+  device:
+    type: "coral_usb"  # Options: coral_usb, coral_dev_board, coral_pcie, coral_m2
+
+  # Device connection
+  connection:
+    method: "ssh"  # Options: ssh, usb, local
+    host: "192.168.100.2"
+    user: "mendel"
+    key_file: "~/.ssh/coral_key"
+
+  # Model deployment
+  remote_model_path: "/home/mendel/models"
+
+  # Service configuration
+  service:
+    enabled: true
+    port: 5000
+    workers: 1
+
+# Inference Configuration
+inference:
+  # Inference settings
+  batch_size: 1
+  num_threads: 2
+
+  # Preprocessing
+  preprocessing:
+    mean: [127.5, 127.5, 127.5]
+    std: [127.5, 127.5, 127.5]
+    resize_method: "bilinear"
+
+  # Postprocessing
+  postprocessing:
+    top_k: 5
+    score_threshold: 0.5
+
+  # Performance
+  benchmark:
+    enabled: true
+    num_runs: 100
+    warmup_runs: 10
+
+# Monitoring Configuration
+monitoring:
+  # Metrics collection
+  metrics:
+    enabled: true
+    port: 9090
+
+  # Logging
+  logging:
+    level: "INFO"
+    file: "logs/coral_training.log"
+
+  # Performance tracking
+  performance:
+    track_inference_time: true
+    track_memory_usage: true
+    track_power_consumption: false
+
+# Validation Configuration
+validation:
+  # Accuracy validation
+  accuracy_threshold: 0.70  # Minimum acceptable accuracy
+
+  # Model size validation
+  max_model_size_mb: 10
+
+  # Latency validation
+  max_inference_time_ms: 10
+
+  # Edge TPU compatibility
+  check_compatibility: true
+
+# Export Configuration
+export:
+  # Export formats
+  formats:
+    - "tflite"
+    - "edgetpu"
+    - "saved_model"
+
+  # Metadata
+  include_metadata: true
+
+  # Labels
+  labels_file: "labels.txt"
+
+  # Model card
+  generate_model_card: true

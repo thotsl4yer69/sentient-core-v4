@@ -32,6 +32,8 @@ Sentient Core v4 is an advanced AI cognitive architecture designed to enable:
 - Advanced natural language understanding
 - Emotional intelligence and sentiment analysis with dedicated memory sectors
 - Explainable AI capabilities
+- **Coral Edge TPU Training Pipeline**: Optimize and deploy models on Google Coral devices
+- **Google APK Pipeline Integration**: Build and distribute Android applications
 
 ## Quick Start
 
@@ -54,6 +56,50 @@ Choose your platform for detailed installation instructions:
 - [macOS Installation Guide](docs/installation/INSTALL_MACOS.md) - Intel and Apple Silicon
 - [Windows Installation Guide](docs/installation/INSTALL_WINDOWS.md) - Windows 10/11, WSL2
 - [Docker Installation Guide](docs/installation/INSTALL_DOCKER.md) - Container deployment
+
+## Edge and Mobile Deployment
+
+### Google Coral Edge TPU
+
+Train and deploy optimized models on Google Coral edge devices:
+
+```bash
+# Train model for Coral
+./scripts/train-coral.sh --config config/coral_config.yaml --epochs 50
+
+# Deploy to Coral device
+sentient-core coral deploy --model models/coral/edgetpu/model_edgetpu.tflite
+```
+
+**Features:**
+- TensorFlow Lite model optimization
+- INT8 quantization for Edge TPU
+- Sub-10ms inference latency
+- Automated deployment to Coral devices
+- Multi-device load balancing
+
+**Learn more:** [Coral Training Pipeline Documentation](docs/coral/CORAL_TRAINING.md)
+
+### Android APK Pipeline
+
+Build and distribute Sentient Core as Android applications:
+
+```bash
+# Build Android APK
+./scripts/build-android.sh --release --aab
+
+# Upload to Google Play
+./scripts/build-android.sh --release --aab --upload
+```
+
+**Features:**
+- Native Android app development
+- TensorFlow Lite on-device inference
+- Google Play automated distribution
+- Firebase ML Kit integration
+- CI/CD pipeline with GitHub Actions
+
+**Learn more:** [Google APK Pipeline Documentation](docs/android/GOOGLE_APK_PIPELINE.md)
 
 ## System Requirements
 
