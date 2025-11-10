@@ -474,8 +474,12 @@ class SentientCoreDistributed:
                 try:
                     handler.flush()
                     handler.close()
-                except Exception:
-                    pass
+                except Exception as e:
+                    # Log and continue: errors during handler cleanup are non-fatal
+                    try:
+                        logger.error(f"Error cleaning up log handler {handler}: {e}")
+                    except Exception:
+                        print(f"Error cleaning up log handler {handler}: {e}")
 
             # Additional cleanup can be added here
             logger.info("Final cleanup complete")
