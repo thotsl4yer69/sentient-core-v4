@@ -162,6 +162,7 @@ class HeartbeatMonitor:
             try:
                 await self.monitor_task
             except asyncio.CancelledError:
+                # Task cancellation is expected when stopping the monitor; ignore this exception.
                 pass
 
         logger.info("Heartbeat monitoring stopped")
