@@ -6,7 +6,7 @@ Implements ping/pong heartbeat to detect crashed or unresponsive nodes.
 
 import asyncio
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
