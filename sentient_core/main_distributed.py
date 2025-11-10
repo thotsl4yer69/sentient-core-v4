@@ -214,8 +214,11 @@ class SentientCoreDistributed:
             logger.info("Distributed mode disabled")
             return
 
-        # Create distributed consciousness
-        self.distributed_consciousness = DistributedConsciousness(self.config.distributed)
+        # Create distributed consciousness with LLM for intent classification
+        self.distributed_consciousness = DistributedConsciousness(
+            self.config.distributed,
+            llm_interface=self.llm  # Pass LLM for intent classification
+        )
 
         # Create local node spec
         node_config = self.config.node
@@ -350,36 +353,140 @@ class SentientCoreDistributed:
         self.running = False
 
     async def shutdown(self):
-        """Shutdown all systems gracefully."""
-        logger.info("Shutting down Sentient Core...")
+        """
+        Shutdown all systems gracefully with comprehensive error handling.
+
+        Ensures all resources are released even if individual cleanup operations fail.
+        """
+        logger.info("=" * 70)
+        logger.info("SENTIENT CORE SHUTDOWN INITIATED")
+        logger.info("=" * 70)
 
         self.running = False
 
-        # Stop sensors
+        try:
+            # Stop sensors with timeout and error handling
+            await self._shutdown_sensors()
+
+            # Stop visualization
+            await self._shutdown_visualization()
+
+            # Stop distributed consciousness
+            await self._shutdown_distributed()
+
+            # Cleanup hardware
+            await self._shutdown_hardware()
+
+            # Cleanup LLM
+            await self._shutdown_llm()
+
+            logger.info("=" * 70)
+            logger.info("SENTIENT CORE SHUTDOWN COMPLETE")
+            logger.info("=" * 70)
+
+        except Exception as e:
+            logger.error(f"Error during shutdown: {e}", exc_info=True)
+        finally:
+            # Ensure critical cleanup happens even if errors occurred
+            await self._final_cleanup()
+
+    async def _shutdown_sensors(self):
+        """Shutdown sensor systems with error handling."""
+        logger.info("Stopping sensors...")
+
         if self.rf_monitor:
-            self.rf_monitor.stop()
+            try:
+                self.rf_monitor.stop()
+                logger.info("✓ RF Monitor stopped")
+            except Exception as e:
+                logger.error(f"✗ RF Monitor shutdown error: {e}")
+
         if self.sensor_fusion:
-            self.sensor_fusion.stop()
+            try:
+                self.sensor_fusion.stop()
+                logger.info("✓ Sensor Fusion stopped")
+            except Exception as e:
+                logger.error(f"✗ Sensor Fusion shutdown error: {e}")
+
         if self.health_monitor:
-            self.health_monitor.stop()
+            try:
+                self.health_monitor.stop()
+                logger.info("✓ Health Monitor stopped")
+            except Exception as e:
+                logger.error(f"✗ Health Monitor shutdown error: {e}")
 
-        # Stop visualization
+    async def _shutdown_visualization(self):
+        """Shutdown visualization system with error handling."""
         if self.consciousness_renderer:
-            self.consciousness_renderer.stop()
+            try:
+                logger.info("Stopping Consciousness Renderer...")
+                self.consciousness_renderer.stop()
+                logger.info("✓ Consciousness Renderer stopped")
+            except Exception as e:
+                logger.error(f"✗ Consciousness Renderer shutdown error: {e}")
 
-        # Stop distributed consciousness
+    async def _shutdown_distributed(self):
+        """Shutdown distributed consciousness with timeout."""
         if self.distributed_consciousness:
-            await self.distributed_consciousness.stop()
+            try:
+                logger.info("Stopping Distributed Consciousness...")
+                # Add timeout to prevent hanging
+                await asyncio.wait_for(
+                    self.distributed_consciousness.stop(),
+                    timeout=10.0
+                )
+                logger.info("✓ Distributed Consciousness stopped")
+            except asyncio.TimeoutError:
+                logger.error("✗ Distributed Consciousness shutdown timeout")
+            except Exception as e:
+                logger.error(f"✗ Distributed Consciousness shutdown error: {e}")
 
-        # Cleanup hardware
+    async def _shutdown_hardware(self):
+        """Shutdown hardware managers with error handling."""
         if self.hardware_manager:
-            self.hardware_manager.cleanup_all()
+            try:
+                logger.info("Cleaning up hardware...")
+                self.hardware_manager.cleanup_all()
+                logger.info("✓ Hardware cleaned up")
+            except Exception as e:
+                logger.error(f"✗ Hardware cleanup error: {e}")
 
-        # Cleanup LLM
+    async def _shutdown_llm(self):
+        """Shutdown LLM with error handling."""
         if self.llm:
-            self.llm.shutdown()
+            try:
+                logger.info("Shutting down LLM...")
+                self.llm.shutdown()
+                logger.info("✓ LLM shutdown complete")
+            except Exception as e:
+                logger.error(f"✗ LLM shutdown error: {e}")
 
-        logger.info("Sentient Core shutdown complete")
+    async def _final_cleanup(self):
+        """
+        Final cleanup operations that must happen regardless of errors.
+
+        This is called in the finally block to ensure critical resources
+        are always released.
+        """
+        try:
+            # Close any open file handlers
+            for handler in logging.root.handlers[:]:
+                try:
+                    handler.flush()
+                    handler.close()
+                except Exception as e:
+                    # Log and continue: errors during handler cleanup are non-fatal
+                    try:
+                        logger.error(f"Error cleaning up log handler {handler}: {e}")
+                    except Exception:
+                        print(f"Error cleaning up log handler {handler}: {e}")
+
+            # Additional cleanup can be added here
+            logger.info("Final cleanup complete")
+
+        except Exception as e:
+            # Use print as a last resort if logging fails
+            print(f"Final cleanup error: {e}")
 
 
 async def main():

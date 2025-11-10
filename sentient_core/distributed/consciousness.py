@@ -14,6 +14,13 @@ import json
 
 from .node import Node, NodeSpec, NodeRole, NodeCapability
 from .sync_manager import SyncManager
+from .heartbeat import HeartbeatMonitor
+from ..constants import (
+    COMPLEXITY_SIMPLE, COMPLEXITY_MODERATE, COMPLEXITY_COMPLEX, COMPLEXITY_VISION,
+    PROMPT_INTENT_CLASSIFICATION, STATUS_ONLINE, STATUS_OFFLINE,
+    ENDPOINT_HEALTH, ENDPOINT_SYNC, ENDPOINT_INFERENCE,
+    STATE_NODE_STATUS_CHANGE, ERROR_NO_SUITABLE_NODE, ERROR_SYSTEM_UNAVAILABLE
+)
 
 logger = logging.getLogger(__name__)
 
@@ -26,17 +33,20 @@ class DistributedConsciousness:
     task routing based on node capabilities and load.
     """
 
-    def __init__(self, config: Optional[Any] = None):
+    def __init__(self, config: Optional[Any] = None, llm_interface: Optional[Any] = None):
         """
         Initialize distributed consciousness.
 
         Args:
             config: Configuration object
+            llm_interface: Optional LLM interface for intent classification
         """
         self.config = config or {}
+        self.llm_interface = llm_interface
         self.nodes: Dict[str, Node] = {}
         self.local_node: Optional[Node] = None
         self.sync_manager: Optional[SyncManager] = None
+        self.heartbeat_monitor: Optional[HeartbeatMonitor] = None
 
         # Shared consciousness state
         self.shared_state = {
@@ -77,6 +87,18 @@ class DistributedConsciousness:
 
         # Initialize sync manager
         self.sync_manager = SyncManager(self.shared_state)
+
+        # Initialize heartbeat monitor
+        ping_interval = self.config.get('heartbeat_interval', 5.0)
+        heartbeat_timeout = self.config.get('heartbeat_timeout', 15.0)
+        self.heartbeat_monitor = HeartbeatMonitor(ping_interval, heartbeat_timeout)
+
+        # Start heartbeat monitoring
+        await self.heartbeat_monitor.start(
+            self.nodes,
+            self._ping_node,
+            self._handle_node_status_change
+        )
 
         # Start sync loop
         self.sync_task = asyncio.create_task(self._sync_loop())
@@ -128,16 +150,45 @@ class DistributedConsciousness:
 
         try:
             async with aiohttp.ClientSession() as session:
-                url = f"{node.spec.endpoint_url}/health"
+                url = f"{node.spec.endpoint_url}{ENDPOINT_HEALTH}"
                 async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
                     if resp.status == 200:
                         node.heartbeat()
+                        # Record pong in heartbeat monitor
+                        if self.heartbeat_monitor:
+                            self.heartbeat_monitor.record_pong(node.spec.node_id)
                         return True
                     return False
 
         except Exception as e:
             logger.debug(f"Ping failed for {node.spec.name}: {e}")
             return False
+
+    async def _handle_node_status_change(self, node_id: str, is_alive: bool):
+        """
+        Handle node status change.
+
+        Args:
+            node_id: Node that changed status
+            is_alive: New alive status
+        """
+        node = self.nodes.get(node_id)
+        if not node:
+            return
+
+        # Update node status
+        old_status = node.status
+        node.status = STATUS_ONLINE if is_alive else STATUS_OFFLINE
+
+        if old_status != node.status:
+            logger.info(f"Node {node_id} ({node.spec.name}) status changed: {old_status} -> {node.status}")
+
+            # Update shared state to reflect node status change
+            await self.update_shared_state(STATE_NODE_STATUS_CHANGE, {
+                'node_id': node_id,
+                'status': node.status,
+                'timestamp': datetime.now().isoformat()
+            })
 
     async def _sync_loop(self):
         """Continuous state synchronization loop."""
@@ -175,7 +226,7 @@ class DistributedConsciousness:
 
             try:
                 async with aiohttp.ClientSession() as session:
-                    url = f"{node.spec.endpoint_url}/sync"
+                    url = f"{node.spec.endpoint_url}{ENDPOINT_SYNC}"
                     async with session.post(
                         url,
                         json=state_update,
@@ -233,8 +284,8 @@ class DistributedConsciousness:
         if not target_node:
             logger.warning("No suitable node found for query")
             return {
-                'error': 'No suitable node available',
-                'text': 'System temporarily unavailable'
+                'error': ERROR_NO_SUITABLE_NODE,
+                'text': ERROR_SYSTEM_UNAVAILABLE
             }
 
         # Execute on target node
@@ -251,27 +302,86 @@ class DistributedConsciousness:
         """
         Assess query complexity for routing.
 
+        Uses LLM-based intent classification when available, falls back to
+        keyword matching otherwise.
+
         Returns:
             'simple', 'moderate', 'complex', or 'vision'
         """
         if required_capability == NodeCapability.VISION_ANALYSIS:
             return 'vision'
 
+        # Try LLM-based intent classification first
+        if self.llm_interface and hasattr(self.llm_interface, 'generate'):
+            try:
+                complexity = self._llm_intent_classification(query)
+                if complexity:
+                    return complexity
+            except Exception as e:
+                logger.debug(f"LLM intent classification failed, falling back to keywords: {e}")
+
+        # Fallback to keyword-based routing
+        return self._keyword_based_complexity(query)
+
+    def _llm_intent_classification(self, query: str) -> Optional[str]:
+        """
+        Use LLM to classify query intent and complexity.
+
+        Args:
+            query: User query to classify
+
+        Returns:
+            Complexity level constant
+        """
+        classification_prompt = PROMPT_INTENT_CLASSIFICATION.format(query=query)
+
+        try:
+            result = self.llm_interface.generate(
+                prompt=classification_prompt,
+                max_tokens=10,
+                temperature=0.1,  # Low temperature for consistent classification
+                stop=["\n", ".", ","]
+            )
+
+            classification = result.get('text', '').strip().lower()
+
+            # Validate classification
+            valid_categories = [COMPLEXITY_SIMPLE, COMPLEXITY_MODERATE, COMPLEXITY_COMPLEX, COMPLEXITY_VISION]
+            if classification in valid_categories:
+                return classification
+
+            logger.debug(f"Invalid LLM classification: {classification}")
+            return None
+
+        except Exception as e:
+            logger.debug(f"LLM intent classification error: {e}")
+            return None
+
+    def _keyword_based_complexity(self, query: str) -> str:
+        """
+        Fallback keyword-based complexity assessment.
+
+        Args:
+            query: User query
+
+        Returns:
+            Complexity level constant
+        """
         query_lower = query.lower()
 
         # Keywords indicating complexity
-        simple_keywords = ['status', 'hello', 'hi', 'thanks', 'ok', 'yes', 'no']
-        complex_keywords = ['analyze', 'explain', 'compare', 'calculate', 'design', 'reason']
-        vision_keywords = ['see', 'look', 'image', 'show', 'picture', 'detect']
+        simple_keywords = ['status', 'hello', 'hi', 'thanks', 'ok', 'yes', 'no', 'hey']
+        complex_keywords = ['analyze', 'explain', 'compare', 'calculate', 'design', 'reason', 'evaluate']
+        vision_keywords = ['see', 'look', 'image', 'show', 'picture', 'detect', 'view', 'visual']
 
         if any(kw in query_lower for kw in vision_keywords):
-            return 'vision'
+            return COMPLEXITY_VISION
         elif any(kw in query_lower for kw in complex_keywords):
-            return 'complex'
+            return COMPLEXITY_COMPLEX
         elif any(kw in query_lower for kw in simple_keywords) or len(query.split()) < 5:
-            return 'simple'
+            return COMPLEXITY_SIMPLE
         else:
-            return 'moderate'
+            return COMPLEXITY_MODERATE
 
     def _select_node(
         self,
@@ -408,7 +518,7 @@ class DistributedConsciousness:
             target_node.active_tasks += 1
 
             async with aiohttp.ClientSession() as session:
-                url = f"{target_node.spec.endpoint_url}/inference"
+                url = f"{target_node.spec.endpoint_url}{ENDPOINT_INFERENCE}"
                 payload = {
                     'input': user_input,
                     'context': context or {},
@@ -460,6 +570,10 @@ class DistributedConsciousness:
     async def stop(self):
         """Stop distributed consciousness."""
         self.running = False
+
+        # Stop heartbeat monitor
+        if self.heartbeat_monitor:
+            await self.heartbeat_monitor.stop()
 
         # Cancel background tasks
         if self.sync_task and not self.sync_task.done():
