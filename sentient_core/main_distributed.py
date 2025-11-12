@@ -482,7 +482,7 @@ class SentientCoreDistributed:
                         print(f"Error cleaning up log handler {handler}: {e}")
 
             # Additional cleanup can be added here
-            logger.info("Final cleanup complete")
+            print("Final cleanup complete")
 
         except Exception as e:
             # Use print as a last resort if logging fails
