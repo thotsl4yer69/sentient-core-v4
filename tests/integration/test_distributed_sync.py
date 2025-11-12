@@ -148,9 +148,6 @@ async def test_distributed_failure_recovery(sample_config):
     consciousness = DistributedConsciousness(sample_config)
     await consciousness.initialize()
 
-    # Simulate failure scenario
-    initial_state = consciousness.state.copy()
-
     # Force disconnect
     if hasattr(consciousness, 'disconnect'):
         await consciousness.disconnect()
@@ -182,9 +179,7 @@ async def test_distributed_load_balancing(sample_config):
         await node.initialize()
         nodes.append(node)
 
-    # Distribute tasks
-    tasks = [{"id": i, "type": "test"} for i in range(10)]
-
+    # Distribute tasks for each node to process
     # Each node should handle some tasks
     # (implementation dependent)
 

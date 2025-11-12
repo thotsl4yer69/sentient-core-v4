@@ -96,6 +96,15 @@ def mock_llm_interface():
 
 
 @pytest.fixture
+def mock_model_manager():
+    """Create a mock model manager for testing."""
+    mock = MagicMock()
+    mock.get_model = MagicMock(return_value=None)
+    mock.interface = None
+    return mock
+
+
+@pytest.fixture
 async def sample_agent(sample_config, mock_llm_interface) -> AsyncGenerator[SentientAgent, None]:
     """Create a sample SentientAgent for testing."""
     agent = SentientAgent(config=sample_config)

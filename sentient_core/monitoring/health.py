@@ -6,7 +6,7 @@ Tracks component health and system status.
 
 import logging
 import psutil
-from typing import Dict, Any, List
+from typing import Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 

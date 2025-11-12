@@ -3,7 +3,7 @@ Plugin registry for managing active plugins.
 """
 
 import logging
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional
 from collections import defaultdict
 
 from .base import Plugin, PluginType

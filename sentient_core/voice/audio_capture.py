@@ -4,8 +4,7 @@ Real-time audio capture and streaming for voice input.
 
 import logging
 import asyncio
-import threading
-from typing import Optional, Callable, Any
+from typing import Optional, Callable
 from collections import deque
 import numpy as np
 
