@@ -5,7 +5,7 @@ Configuration management for Sentient Core.
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from dataclasses import dataclass, field
 import logging
 
