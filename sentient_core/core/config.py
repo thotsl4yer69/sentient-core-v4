@@ -144,7 +144,7 @@ class Config:
             if 'model_path' in llm_config:
                 model_path = Path(llm_config['model_path']).expanduser()
                 if not model_path.exists() and not str(model_path).startswith('~'):
-                    logger.warning(f"LLM model path does not exist: {model_path}")
+                    issues.append(f"LLM model path does not exist: {model_path}")
 
         # Validate port numbers
         if self.api_port < 1 or self.api_port > 65535:
