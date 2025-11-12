@@ -56,6 +56,8 @@ class SentientCoreDistributed:
             logger.warning("Configuration validation issues found:")
             for issue in validation_issues:
                 logger.warning(f"  - {issue}")
+            raise ValueError(f"Configuration validation failed with the following issues:\n" +
+                             "\n".join(f"- {issue}" for issue in validation_issues))
 
         self.config.ensure_directories()
 
