@@ -237,15 +237,116 @@ class ConsciousnessRenderer:
         Output frame to display hardware.
 
         Args:
-            frame: RGB frame to display
+            frame: RGB frame to display (H x W x 3 RGB array)
         """
-        # TODO: Implement actual display output
-        # Options:
-        # - LED matrix (via GPIO)
-        # - OLED display (via I2C/SPI)
-        # - HDMI output
-        # - Save to file for debugging
-        pass
+        # Initialize display backend if not done
+        if not hasattr(self, 'display_backend'):
+            self.display_backend = self._init_display_backend()
+
+        # Output to display backend
+        if self.display_backend:
+            try:
+                self.display_backend.show(frame)
+            except Exception as e:
+                logger.error(f"Display error: {e}")
+
+    def _init_display_backend(self):
+        """
+        Initialize display backend based on available hardware.
+
+        Returns:
+            Display backend instance or None
+        """
+        display_type = self.config.get('display_type', 'auto')
+
+        if display_type == 'auto':
+            # Auto-detect available display hardware
+            backend = (
+                self._try_init_led_matrix() or
+                self._try_init_oled() or
+                self._try_init_window() or
+                self._init_file_backend()
+            )
+        elif display_type == 'led':
+            backend = self._try_init_led_matrix()
+        elif display_type == 'oled':
+            backend = self._try_init_oled()
+        elif display_type == 'window':
+            backend = self._try_init_window()
+        elif display_type == 'file':
+            backend = self._init_file_backend()
+        else:
+            logger.warning(f"Unknown display type: {display_type}")
+            backend = None
+
+        if backend:
+            logger.info(f"Using display backend: {backend.name}")
+        else:
+            logger.warning("No display backend available")
+
+        return backend
+
+    def _try_init_led_matrix(self):
+        """Try to initialize LED matrix display (WS2812B via GPIO)."""
+        try:
+            from .display_backends import LEDMatrixBackend
+            backend = LEDMatrixBackend(
+                width=self.display_width,
+                height=self.display_height,
+                gpio_pin=self.config.get('led_gpio_pin', 18)
+            )
+            if backend.initialize():
+                return backend
+        except ImportError:
+            logger.debug("LED matrix backend not available")
+        except Exception as e:
+            logger.debug(f"Failed to init LED matrix: {e}")
+        return None
+
+    def _try_init_oled(self):
+        """Try to initialize OLED display (I2C/SPI)."""
+        try:
+            from .display_backends import OLEDBackend
+            backend = OLEDBackend(
+                width=self.display_width,
+                height=self.display_height
+            )
+            if backend.initialize():
+                return backend
+        except ImportError:
+            logger.debug("OLED backend not available")
+        except Exception as e:
+            logger.debug(f"Failed to init OLED: {e}")
+        return None
+
+    def _try_init_window(self):
+        """Try to initialize window display (OpenCV/Pygame)."""
+        try:
+            from .display_backends import WindowBackend
+            backend = WindowBackend(
+                width=self.display_width,
+                height=self.display_height
+            )
+            if backend.initialize():
+                return backend
+        except ImportError:
+            logger.debug("Window backend not available")
+        except Exception as e:
+            logger.debug(f"Failed to init window: {e}")
+        return None
+
+    def _init_file_backend(self):
+        """Initialize file output backend (fallback)."""
+        try:
+            from .display_backends import FileBackend
+            backend = FileBackend(
+                output_dir=self.config.get('output_dir', '/tmp/sentient-frames')
+            )
+            backend.initialize()
+            return backend
+        except Exception as e:
+            logger.error(f"Failed to init file backend: {e}")
+            return None
 
     def update_state(self, state_update: Dict[str, Any]):
         """
