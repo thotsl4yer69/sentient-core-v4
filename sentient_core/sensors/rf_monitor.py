@@ -53,6 +53,8 @@ class RFMonitor:
         """
         Detect if SDR hardware is available.
 
+        Properly handles Raspberry Pi USB permissions and kernel module issues.
+
         Returns:
             True if SDR detected
         """
@@ -60,36 +62,142 @@ class RFMonitor:
             # Try RTL-SDR first
             from rtlsdr import RtlSdr
 
-            self.sdr = RtlSdr()
-            self.sdr_available = True
-            logger.info("RTL-SDR detected")
-            return True
+            # Check for common Raspberry Pi issues
+            import os
+            import subprocess
+
+            # Check if running on Raspberry Pi
+            is_pi = os.path.exists('/sys/firmware/devicetree/base/model')
+
+            if is_pi:
+                # Check if blacklist rules are in place
+                self._check_rtlsdr_setup()
+
+            # Attempt to open RTL-SDR device
+            try:
+                self.sdr = RtlSdr()
+                self.sdr_available = True
+
+                # Get device info
+                device_index = 0
+                logger.info(f"RTL-SDR detected (device {device_index})")
+
+                return True
+
+            except OSError as e:
+                if "Permission denied" in str(e):
+                    logger.error("RTL-SDR USB permission denied!")
+                    logger.error("Fix: Run 'sudo usermod -a -G plugdev $USER' and reboot")
+                    logger.error("Or create udev rule: /etc/udev/rules.d/20-rtlsdr.rules")
+                elif "No devices found" in str(e) or "LIBUSB_ERROR_NOT_FOUND" in str(e):
+                    logger.warning("No RTL-SDR devices found on USB")
+                    logger.info("Check: 1) Device plugged in, 2) lsusb shows Realtek device")
+                elif "Resource busy" in str(e) or "LIBUSB_ERROR_BUSY" in str(e):
+                    logger.error("RTL-SDR device busy - likely kernel DVB driver loaded")
+                    logger.error("Fix: Blacklist DVB kernel modules")
+                    logger.error("Run: echo 'blacklist dvb_usb_rtl28xxu' | sudo tee /etc/modprobe.d/blacklist-rtl-sdr.conf")
+                    logger.error("Then reboot")
+                else:
+                    logger.error(f"RTL-SDR USB error: {e}")
+
+                return False
 
         except ImportError:
             logger.warning("RTL-SDR library not installed")
+            logger.info("Install: pip install pyrtlsdr")
             return False
         except Exception as e:
             logger.warning(f"No RTL-SDR hardware detected: {e}")
             return False
 
+    def _check_rtlsdr_setup(self):
+        """Check and warn about common RTL-SDR setup issues on Raspberry Pi."""
+        import subprocess
+        import os
+
+        # Check if DVB drivers are loaded
+        try:
+            lsmod_output = subprocess.check_output(['lsmod'], text=True)
+            if 'dvb_usb_rtl28xxu' in lsmod_output:
+                logger.warning("⚠️  DVB kernel driver is loaded and will block RTL-SDR!")
+                logger.warning("To blacklist:")
+                logger.warning("  echo 'blacklist dvb_usb_rtl28xxu' | sudo tee /etc/modprobe.d/blacklist-rtl-sdr.conf")
+                logger.warning("  sudo reboot")
+        except:
+            pass
+
+        # Check if udev rules exist
+        udev_rule_path = '/etc/udev/rules.d/20-rtlsdr.rules'
+        if not os.path.exists(udev_rule_path):
+            logger.info("RTL-SDR udev rules not found")
+            logger.info(f"Create {udev_rule_path} with:")
+            logger.info('  SUBSYSTEM=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE="0666"')
+
+        # Check if user is in plugdev group
+        try:
+            groups_output = subprocess.check_output(['groups'], text=True)
+            if 'plugdev' not in groups_output:
+                logger.warning("Current user not in 'plugdev' group")
+                logger.warning("Run: sudo usermod -a -G plugdev $USER")
+                logger.warning("Then logout and login again")
+        except:
+            pass
+
     def initialize(self) -> bool:
-        """Initialize SDR hardware."""
+        """Initialize SDR hardware with proper Raspberry Pi configuration."""
         if not self.detect_sdr():
             logger.warning("No SDR hardware available - running in simulation mode")
             self.sdr_available = False
             return True  # Allow to run in simulation mode
 
         try:
-            # Configure SDR
-            self.sdr.sample_rate = self.sample_rate
-            self.sdr.center_freq = self.center_frequency
-            self.sdr.gain = self.gain
+            # Configure SDR with retry logic for Raspberry Pi USB stability
+            max_retries = 3
+            retry_delay = 1.0
 
-            logger.info(f"SDR configured: {self.sample_rate/1e6} MHz @ {self.center_frequency/1e9} GHz")
-            return True
+            for attempt in range(max_retries):
+                try:
+                    # Set sample rate (lower rates more stable on Pi)
+                    self.sdr.sample_rate = self.sample_rate
+
+                    # Set center frequency
+                    self.sdr.center_freq = self.center_frequency
+
+                    # Set gain (manual gain recommended for Pi)
+                    # Use 'auto' or specific value (0-50)
+                    if self.gain == 'auto':
+                        self.sdr.gain = 'auto'
+                    else:
+                        self.sdr.gain = self.gain
+
+                    # Set frequency correction (PPM) if configured
+                    if hasattr(self.config, 'get'):
+                        freq_correction = self.config.get('rf_freq_correction', 0)
+                        if freq_correction != 0:
+                            self.sdr.freq_correction = freq_correction
+                            logger.info(f"Frequency correction set to {freq_correction} PPM")
+
+                    logger.info(f"SDR configured: {self.sdr.sample_rate/1e6:.1f} MHz @ {self.sdr.center_freq/1e9:.3f} GHz, Gain: {self.sdr.gain}")
+
+                    # Test read to ensure it's working
+                    test_samples = self.sdr.read_samples(1024)
+                    logger.info(f"SDR test read successful: {len(test_samples)} samples")
+
+                    return True
+
+                except OSError as e:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"SDR configuration attempt {attempt + 1} failed: {e}")
+                        logger.info(f"Retrying in {retry_delay}s...")
+                        import time
+                        time.sleep(retry_delay)
+                        retry_delay *= 2  # Exponential backoff
+                    else:
+                        raise
 
         except Exception as e:
-            logger.error(f"SDR initialization failed: {e}")
+            logger.error(f"SDR initialization failed after {max_retries} attempts: {e}")
+            logger.error("Try unplugging and replugging the RTL-SDR device")
             return False
 
     def start(self):
