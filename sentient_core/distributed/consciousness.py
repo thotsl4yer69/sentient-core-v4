@@ -582,6 +582,7 @@ class DistributedConsciousness:
                 await self.sync_task
             except asyncio.CancelledError:
                 # Task cancellation is expected during shutdown; safe to ignore.
+                pass
 
         if self.discovery_task and not self.discovery_task.done():
             self.discovery_task.cancel()
@@ -589,6 +590,7 @@ class DistributedConsciousness:
                 await self.discovery_task
             except asyncio.CancelledError:
                 # Task cancellation is expected during shutdown; safe to ignore.
+                pass
 
         logger.info("Distributed Consciousness stopped")
 

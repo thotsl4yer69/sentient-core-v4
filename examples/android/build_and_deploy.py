@@ -1,12 +1,32 @@
 #!/usr/bin/env python3
 """
+⚠️ REQUIRES ANDROID PROJECT SETUP ⚠️
+
 Sentient Core v4 - Android APK Build and Deploy Example
+
+This script requires a complete Android project structure in the android/
+directory (not included in this repository).
+
+PREREQUISITES:
+- Android project structure with build.gradle files
+- Android SDK and ANDROID_HOME environment variable
+- Java Development Kit (JDK)
+- Gradle wrapper (android/gradlew)
+- For release builds: Signing keystore configuration
+
+To set up an Android project for Sentient Core:
+1. Create android/ directory with proper Android project structure
+2. Configure build.gradle with TensorFlow Lite dependencies
+3. Set up signing configuration for release builds
+4. See docs/android/GOOGLE_APK_PIPELINE.md for detailed instructions
 
 This example demonstrates:
 1. Setting up Android build environment
 2. Building APK/AAB
 3. Running tests
 4. Uploading to Google Play
+
+This is a reference implementation showing the intended build pipeline.
 """
 
 import os

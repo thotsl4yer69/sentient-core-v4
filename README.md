@@ -26,14 +26,14 @@ Sentient Core v4 is an advanced AI cognitive architecture designed to enable:
 
 ### Latest Advancements (v4)
 - Enhanced reasoning engine with causal inference
-- **OpenMemory integration**: Brain-inspired memory with multi-sector organization, automatic decay, and graph-based associations
-- Improved memory consolidation and retrieval with 95% recall accuracy
+- **OpenMemory integration** *(optional)*: Brain-inspired memory with multi-sector organization, automatic decay, and graph-based associations (requires separate OpenMemory server)
+- Improved memory consolidation and retrieval with graceful fallback to in-memory storage
 - Multi-agent coordination and collaboration
 - Advanced natural language understanding
 - Emotional intelligence and sentiment analysis with dedicated memory sectors
 - Explainable AI capabilities
-- **Coral Edge TPU Training Pipeline**: Optimize and deploy models on Google Coral devices
-- **Google APK Pipeline Integration**: Build and distribute Android applications
+- **Coral Edge TPU Runtime**: Run optimized models on Google Coral devices (training pipeline is documentation only)
+- **Raspberry Pi 5 + Hailo AI Hat**: Full distributed consciousness system with hardware acceleration
 
 ## Quick Start
 
@@ -61,43 +61,51 @@ Choose your platform for detailed installation instructions:
 
 ### Google Coral Edge TPU
 
-Train and deploy optimized models on Google Coral edge devices:
+Run optimized models on Google Coral edge devices:
 
-```bash
-# Train model for Coral
-./scripts/train-coral.sh --config config/coral_config.yaml --epochs 50
+```python
+from sentient_core.hardware import CoralInterface
 
-# Deploy to Coral device
-sentient-core coral deploy --model models/coral/edgetpu/model_edgetpu.tflite
+# Initialize Coral TPU
+coral = CoralInterface()
+coral.initialize()
+
+# Load and run EdgeTPU model
+coral.load_model("models/coral/edgetpu/model_edgetpu.tflite")
+result = coral.infer(input_data)
 ```
 
 **Features:**
-- TensorFlow Lite model optimization
-- INT8 quantization for Edge TPU
-- Sub-10ms inference latency
-- Automated deployment to Coral devices
-- Multi-device load balancing
+- ✅ TensorFlow Lite EdgeTPU inference (Production Ready)
+- ✅ Sub-10ms inference latency
+- ✅ Automatic device detection and initialization
+- ⚠️ Training pipeline (Documentation Only - see examples/coral/)
 
-**Learn more:** [Coral Training Pipeline Documentation](docs/coral/CORAL_TRAINING.md)
+**Note:** The Coral runtime interface is fully functional. Model training examples are reference implementations for future development.
+
+**Learn more:** [Coral Hardware Interface](sentient_core/hardware/coral_interface.py)
 
 ### Android APK Pipeline
 
-Build and distribute Sentient Core as Android applications:
+⚠️ **Reference Implementation Only**
 
-```bash
-# Build Android APK
-./scripts/build-android.sh --release --aab
+The Android build pipeline is documented but requires additional setup:
 
-# Upload to Google Play
-./scripts/build-android.sh --release --aab --upload
-```
+**Prerequisites (Not Included):**
+- Android project structure in `android/` directory
+- Android SDK and Gradle configuration
+- Build signing keystore for releases
 
-**Features:**
-- Native Android app development
-- TensorFlow Lite on-device inference
-- Google Play automated distribution
-- Firebase ML Kit integration
-- CI/CD pipeline with GitHub Actions
+**What's Provided:**
+- ✅ Complete build script reference (examples/android/build_and_deploy.py)
+- ✅ Documentation for Android integration
+- ⚠️ Android project structure (User must create)
+
+**To Use:**
+1. Create Android project with TensorFlow Lite integration
+2. Configure build.gradle with Sentient Core dependencies
+3. Set up signing configuration
+4. Run provided build scripts
 
 **Learn more:** [Google APK Pipeline Documentation](docs/android/GOOGLE_APK_PIPELINE.md)
 
