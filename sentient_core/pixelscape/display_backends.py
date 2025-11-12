@@ -357,8 +357,8 @@ class WindowBackend(DisplayBackend):
             else:
                 import pygame
                 pygame.quit()
-        except:
-            pass
+        except Exception:
+            pass  # Ignore errors during shutdown
         logger.info("Window display shutdown")
 
 

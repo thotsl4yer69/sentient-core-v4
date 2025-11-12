@@ -7,7 +7,7 @@ import importlib
 import importlib.util
 import inspect
 from pathlib import Path
-from typing import List, Optional, Type, Dict, Any
+from typing import List, Optional, Type, Dict
 
 from .base import Plugin
 
@@ -99,11 +99,11 @@ class PluginLoader:
                 for name, obj in inspect.getmembers(module):
                     if (inspect.isclass(obj) and
                         issubclass(obj, Plugin) and
-                        obj is not Plugin and
-                        not obj.__name__.endswith('Plugin')):  # Skip base classes
+                        obj is not Plugin):  # Skip base Plugin class
 
                         plugins.append(obj)
-                        self.loaded_plugins[obj.metadata.name if hasattr(obj, 'metadata') else name] = obj
+                        plugin_key = getattr(getattr(obj, 'metadata', None), 'name', name)
+                        self.loaded_plugins[plugin_key] = obj
                         logger.debug(f"Loaded plugin class: {name} from {file_path}")
 
         except Exception as e:

@@ -5,7 +5,6 @@ Handles downloading, caching, and verification of AI models.
 Supports multiple model types: LLM (GGUF), Vision (YOLO), Audio (Whisper), Hardware (.hef)
 """
 
-import os
 import hashlib
 import json
 import logging

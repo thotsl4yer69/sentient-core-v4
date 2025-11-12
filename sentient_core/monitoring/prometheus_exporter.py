@@ -142,8 +142,6 @@ class PrometheusExporter:
             if stats['count'] > 0:
                 lines.append(f"# TYPE {prometheus_name} summary")
 
-                label_prefix = f"{{{labels_str}," if labels_str else "{"
-
                 lines.append(f"{prometheus_name}_count{{{labels_str}}} {stats['count']}" if labels_str else f"{prometheus_name}_count {stats['count']}")
                 lines.append(f"{prometheus_name}_sum{{{labels_str}}} {stats['mean'] * stats['count']}" if labels_str else f"{prometheus_name}_sum {stats['mean'] * stats['count']}")
 

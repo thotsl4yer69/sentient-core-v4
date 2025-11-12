@@ -223,7 +223,6 @@ class RFSignalAnalyzer:
         try:
             # Constellation analysis
             # Digital signals tend to cluster at specific points
-            amplitude = np.abs(samples)
             phase = np.angle(samples)
 
             # Check for clustering in phase
@@ -233,7 +232,7 @@ class RFSignalAnalyzer:
             # Lower entropy suggests clustering (digital modulation)
             return phase_entropy < 3.0
 
-        except:
+        except Exception:
             return False
 
     def match_pattern(self, signal_info: Dict[str, Any]) -> Optional[SignalPattern]:

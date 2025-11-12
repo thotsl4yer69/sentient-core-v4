@@ -123,8 +123,8 @@ class RFMonitor:
                 logger.warning("To blacklist:")
                 logger.warning("  echo 'blacklist dvb_usb_rtl28xxu' | sudo tee /etc/modprobe.d/blacklist-rtl-sdr.conf")
                 logger.warning("  sudo reboot")
-        except:
-            pass
+        except Exception:
+            pass  # lsmod command not available or failed
 
         # Check if udev rules exist
         udev_rule_path = '/etc/udev/rules.d/20-rtlsdr.rules'
@@ -140,8 +140,8 @@ class RFMonitor:
                 logger.warning("Current user not in 'plugdev' group")
                 logger.warning("Run: sudo usermod -a -G plugdev $USER")
                 logger.warning("Then logout and login again")
-        except:
-            pass
+        except Exception:
+            pass  # groups command not available or failed
 
     def initialize(self) -> bool:
         """Initialize SDR hardware with proper Raspberry Pi configuration."""
