@@ -5,8 +5,11 @@ Configuration management for Sentient Core.
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -113,3 +116,91 @@ class Config:
         for dir_path in dirs:
             path = Path(dir_path).expanduser()
             path.mkdir(parents=True, exist_ok=True)
+
+    def validate(self) -> List[str]:
+        """
+        Validate configuration and return list of issues.
+
+        Returns:
+            List of validation error messages (empty if valid)
+        """
+        issues = []
+
+        # For distributed system configs
+        if self.config_data.get('distributed', {}).get('enable', False):
+            # Check required distributed keys
+            if 'node' not in self.config_data:
+                issues.append("Missing required key: 'node' (required for distributed mode)")
+            else:
+                node_config = self.config_data['node']
+                required_node_keys = ['node_id', 'name', 'role', 'capabilities']
+                for key in required_node_keys:
+                    if key not in node_config:
+                        issues.append(f"Missing required node key: 'node.{key}'")
+
+        # Check llm config if present
+        if 'llm' in self.config_data:
+            llm_config = self.config_data['llm']
+            if 'model_path' in llm_config:
+                model_path = Path(llm_config['model_path']).expanduser()
+                if not model_path.exists() and not str(model_path).startswith('~'):
+                    logger.warning(f"LLM model path does not exist: {model_path}")
+
+        # Validate port numbers
+        if self.api_port < 1 or self.api_port > 65535:
+            issues.append(f"Invalid API port: {self.api_port} (must be 1-65535)")
+
+        return issues
+
+    def __getattr__(self, name: str) -> Any:
+        """
+        Support attribute-style access to config_data sections.
+
+        This allows both config.system.get('name') and config.get('system.name')
+        to work as expected.
+        """
+        # Avoid recursion for special attributes
+        if name.startswith('_') or name in ['config_data', 'get', 'validate']:
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+        # Check if it's a top-level key in config_data
+        if name in self.config_data:
+            value = self.config_data[name]
+            # Wrap dicts to support chained attribute access
+            if isinstance(value, dict):
+                return ConfigSection(value)
+            return value
+
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+
+class ConfigSection:
+    """Helper class to support attribute-style access to config sections."""
+
+    def __init__(self, data: Dict[str, Any]):
+        self._data = data
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get value from section with default."""
+        return self._data.get(key, default)
+
+    def __getattr__(self, name: str) -> Any:
+        """Support nested attribute access."""
+        if name.startswith('_'):
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+        if name in self._data:
+            value = self._data[name]
+            if isinstance(value, dict):
+                return ConfigSection(value)
+            return value
+
+        raise AttributeError(f"ConfigSection has no key '{name}'")
+
+    def __getitem__(self, key: str) -> Any:
+        """Support dictionary-style access."""
+        return self._data[key]
+
+    def __contains__(self, key: str) -> bool:
+        """Support 'in' operator."""
+        return key in self._data

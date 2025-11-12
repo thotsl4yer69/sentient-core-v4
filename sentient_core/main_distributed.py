@@ -50,6 +50,13 @@ class SentientCoreDistributed:
         else:
             self.config = Config.from_yaml("config/pi5_hailo.yaml")
 
+        # Validate configuration
+        validation_issues = self.config.validate()
+        if validation_issues:
+            logger.warning("Configuration validation issues found:")
+            for issue in validation_issues:
+                logger.warning(f"  - {issue}")
+
         self.config.ensure_directories()
 
         # Setup logging

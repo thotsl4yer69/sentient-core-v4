@@ -1,12 +1,31 @@
 #!/usr/bin/env python3
 """
+⚠️ FUTURE WORK / DOCUMENTATION ONLY ⚠️
+
 Sentient Core v4 - Coral Training and Deployment Example
 
-This example demonstrates:
+This is a reference implementation showing what a Coral training pipeline
+WOULD look like. The actual training code is NOT currently implemented.
+
+The Coral RUNTIME interface (sentient_core/hardware/coral_interface.py)
+IS fully functional for running inference on pre-trained models.
+
+This example demonstrates the intended workflow:
 1. Training a model optimized for Edge TPU
 2. Quantizing and compiling for Coral
 3. Deploying to a Coral device
 4. Running inference on the edge
+
+To use Coral for inference NOW:
+- See sentient_core/hardware/coral_interface.py
+- Pre-trained EdgeTPU models work out of the box
+- Training pipeline is planned for future release
+
+For full implementation, the following would need to be added:
+- Actual TensorFlow model training code
+- EdgeTPU compilation integration
+- Representative dataset generation
+- Model conversion utilities
 """
 
 import os

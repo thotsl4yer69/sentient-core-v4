@@ -212,16 +212,25 @@ class HailoInterface(HardwareInterface):
 
     def get_firmware_version(self) -> Optional[str]:
         """Get Hailo firmware version."""
-        if not self.initialized:
+        if not self.initialized or not self.device:
             return None
 
         try:
-            # Query firmware version
-            # Note: Actual implementation depends on Hailo SDK version
-            return "4.20.0"  # Placeholder
+            # Try to query firmware version from device
+            # Different SDK versions may have different methods
+            if hasattr(self.device, 'get_firmware_version'):
+                return self.device.get_firmware_version()
+            elif hasattr(self.device, 'firmware_version'):
+                return self.device.firmware_version
+            elif hasattr(self.device, 'info') and hasattr(self.device.info, 'firmware_version'):
+                return self.device.info.firmware_version
+            else:
+                # Fallback if SDK doesn't provide firmware version method
+                logger.debug("Firmware version query not supported by Hailo SDK")
+                return "Unknown"
         except Exception as e:
             logger.error(f"Failed to get firmware version: {e}")
-            return None
+            return "Unknown"
 
     def cleanup(self):
         """Cleanup Hailo resources."""
